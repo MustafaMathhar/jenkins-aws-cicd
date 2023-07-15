@@ -5,7 +5,7 @@ agent {label 'default'}
             steps {
                 echo 'Hello..'
                 echo 'ECHO ECHO'
-                sh 'docker ps'
+                sh 'sudo docker ps'
             }
     }
     }
