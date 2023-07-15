@@ -12,20 +12,7 @@ provider "aws" {
   region  = "eu-west-3"
   profile = "default"
 }
-data "aws_ami" "al2" {
-  most_recent = true
-  owners      = ["amazon"]
-  filter {
-    name   = "name"
-    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
-  }
 
-  filter {
-    name   = "virtualization-type"
-    values = ["hvm"]
-  }
-
-}
 data "aws_ami" "ubuntu" {
   most_recent = true
 
@@ -91,7 +78,7 @@ resource "aws_security_group" "jenkins_security_group" {
     Name = "jenkins_security_group"
   }
 }
-/*resource "aws_security_group" "docker_security_group" {
+resource "aws_security_group" "docker_security_group" {
   name        = "docker_security_group"
   description = "Security group to allow inbound 4243 SCP & outbound 32768-60999 Jenkins connections"
 
@@ -112,6 +99,13 @@ resource "aws_security_group" "jenkins_security_group" {
   }
 
   egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+  egress {
     from_port   = 32768
     to_port     = 60999
     protocol    = "tcp"
@@ -124,7 +118,7 @@ resource "aws_security_group" "jenkins_security_group" {
 }
 
 resource "aws_instance" "docker" {
-  ami           = data.aws_ami.al2.id
+  ami           = "ami-00ec9546402c989de"
   instance_type = "t2.medium"
 
   key_name        = aws_key_pair.generated_key.key_name
@@ -140,14 +134,18 @@ resource "aws_instance" "docker" {
   user_data = <<EOF
 #!/bin/bash
 echo "-------------------------START SETUP---------------------------"
-sudo yum install -y yum-utils
-sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo   
-    sudo yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+sudo yum update -y 
+sudo amazon-linux-extras install -y docker
+sudo service docker start
+    sudo groupadd docker
+sudo usermod -a -G docker ec2-user
+newgrp docker
+
     echo "-------------------------END SETUP---------------------------"
 
 EOF
 
-}*/
+}
 resource "aws_instance" "jenkins" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.medium"
