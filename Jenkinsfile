@@ -5,7 +5,6 @@ pipeline {
             steps {
                 echo 'Hello..'
                 echo 'ECHO ECHO'
-                sh 'docker build'
             }
         }
     }
