@@ -12,7 +12,20 @@ provider "aws" {
   region  = "eu-west-3"
   profile = "default"
 }
+data "aws_ami" "al2" {
+  most_recent = true
+  owners      = ["amazon"]
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
 
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+}
 data "aws_ami" "ubuntu" {
   most_recent = true
 
@@ -68,8 +81,8 @@ resource "aws_security_group" "jenkins_security_group" {
   }
 
   egress {
-    from_port   = 8080
-    to_port     = 8080
+    from_port   = 50000
+    to_port     = 50000
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
@@ -78,34 +91,59 @@ resource "aws_security_group" "jenkins_security_group" {
     Name = "jenkins_security_group"
   }
 }
-/*resource "aws_instance" "docker" {
-  ami           = data.aws_ami.ubuntu.id
+/*resource "aws_security_group" "docker_security_group" {
+  name        = "docker_security_group"
+  description = "Security group to allow inbound 4243 SCP & outbound 32768-60999 Jenkins connections"
+
+  ingress {
+    description = "Inbound SCP"
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "Inbound SCP"
+    from_port   = 4243
+    to_port     = 4243
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 32768
+    to_port     = 60999
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "docker_security_group"
+  }
+}
+
+resource "aws_instance" "docker" {
+  ami           = data.aws_ami.al2.id
   instance_type = "t2.medium"
 
   key_name        = aws_key_pair.generated_key.key_name
-  security_groups = [aws_security_group.jenkins_security_group.name]
+  security_groups = [aws_security_group.docker_security_group.name]
 
-  root_block_device = {
-    volume_size = 8
+  root_block_device {
+    volume_size = 15
   }
   tags = {
     Name = "docker_ec2"
   }
 
-  /* user_data = <<EOF
+  user_data = <<EOF
 #!/bin/bash
-
 echo "-------------------------START SETUP---------------------------"
-sudo apt-get -y update
-sudo apt-get -y install openjdk-11-jre
-curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
-  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
-echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
-  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
-  /etc/apt/sources.list.d/jenkins.list > /dev/null
-sudo apt-get update
-sudo apt-get install jenkins
-echo "-------------------------END SETUP---------------------------"
+sudo yum install -y yum-utils
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo   
+    sudo yum install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+    echo "-------------------------END SETUP---------------------------"
 
 EOF
 
