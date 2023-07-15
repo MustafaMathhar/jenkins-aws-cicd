@@ -1,5 +1,5 @@
 pipeline {
-agent any
+agent {label 'default'}
     stages {
     stage('Hello') {
             steps {
@@ -7,6 +7,6 @@ agent any
                 echo 'ECHO ECHO'
                 sh 'docker ps'
             }
-        }
+    }
     }
 }
