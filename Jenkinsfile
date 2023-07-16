@@ -41,7 +41,6 @@ pipeline {
         }
         stage('Build dockerfile') {
                 steps {
-                sh 'docker build -t fangg23/hello_docker_jenkins:latest .'
                 withDockerRegistry([ credentialsId: 'DOCKERHUB_JENKINS', url: '' ]) {
                     script {
                         dockerImage.push()
