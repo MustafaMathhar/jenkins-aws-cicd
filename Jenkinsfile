@@ -1,4 +1,4 @@
-def dockerImage
+def dockerImge
 pipeline {
     agent { label 'default' }
     tools {
@@ -33,9 +33,9 @@ pipeline {
                 dir('src') {
                     echo 'Running smoke test'
                     sh 'go build .'
-                    script {
-                        dockerImage = docker.build('fangg23/hello_docker_jenkins:latest')
-                    }
+                }
+                script {
+                    dockerImage = docker.build('fangg23/hello_docker_jenkins:latest')
                 }
             }
         }
