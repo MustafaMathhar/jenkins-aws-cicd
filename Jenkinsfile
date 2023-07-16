@@ -38,7 +38,8 @@ pipeline {
         }
         stage('Build dockerfile'){
                 steps{
-                    dockerImage = docker.build("fangg23/hello_docker_jenkins:latest")
+                    docker.build("fangg23/hello_docker_jenkins:latest")
+                    
                       //  sh 'docker build -t mustafamathhar/hello_jenkins_docker:latest .'
                     }
             }
