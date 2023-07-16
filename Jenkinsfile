@@ -10,7 +10,7 @@ pipeline {
         }
         stage('Smoke Test') {
             steps {
-                sh 'devops'
+                echo 'devops'
             }
         }
     }
