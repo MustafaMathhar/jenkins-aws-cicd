@@ -42,7 +42,9 @@ pipeline {
                 steps {
                 sh 'docker build -t fangg23/hello_docker_jenkins:latest .'
                 withDockerRegistry([ credentialsId: 'DOCKERHUB_JENKINS', url: '' ]) {
-                    dockerImage.push()
+                    script {
+                        dockerImage.push()
+                    }
                 }
                 }
         }
