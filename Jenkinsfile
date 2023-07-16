@@ -18,11 +18,13 @@ pipeline {
         stage('Tests') {
             steps {
                     withEnv(["PATH+GO=${GOPATH}/bin"]){
-                    sh 'cd src'
-                    echo 'Running vetting'
-                    sh 'go vet .'
-                    echo 'Running test'
-                    sh 'cd test && go test -v'
+                        dir('src'){
+
+                            echo 'Running vetting'
+                                sh 'go vet .'
+                                echo 'Running test'
+                                sh 'go test -v'
+                            }
                     }
             
         }
