@@ -17,22 +17,23 @@ pipeline {
         }
         stage('Tests') {
             steps {
-                    withEnv(["PATH+GO=${GOPATH}/bin"]){
-                        dir('src'){
-
+                    withEnv(["PATH+GO=${GOPATH}/bin"]) {
+                        dir('src') {
                             echo 'Running vetting'
                                 sh 'go vet .'
                                 echo 'Running test'
                                 sh 'go test -v'
-                            }
+                        }
                     }
-            
-        }
-    }
-        stage('Smoke Test') {
-            steps {
-                echo 'devops'
             }
         }
-}
+        stage('Smoke Test') {
+            steps {
+                dir('src') {
+                    echo 'Running smoke test'
+                    sh 'go build .'
+                }
+            }
+        }
+    }
 }
