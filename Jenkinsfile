@@ -28,6 +28,9 @@ pipeline {
             }
         }
         stage('Smoke Test') {
+            environment{
+                    PORT=6969
+                }
             steps {
                 dir('src') {
                     echo 'Running smoke test'
