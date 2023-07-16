@@ -1,12 +1,12 @@
 pipeline {
-agent {label 'default'}
+    agent { label 'default' }
     stages {
-    stage('Hello') {
-            steps {
-                echo 'Hello..'
-                echo 'ECHO ECHO'
-                sh 'docker ps'
+        stage('Tests') {
+            dir('src') {
+                sh 'pwd'
             }
-    }
+        }
+        stage('Smoke Test') {
+        }
     }
 }

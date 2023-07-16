@@ -84,79 +84,6 @@ resource "aws_security_group" "jenkins_security_group" {
     Name = "jenkins_security_group"
   }
 }
-resource "aws_security_group" "docker_security_group" {
-  name        = "docker_security_group"
-  description = "Security group to allow inbound 4243 SCP & outbound 32768-60999 Jenkins connections"
-
-  ingress {
-    description = "Inbound SCP"
-    from_port   = 22
-    to_port     = 22
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  ingress {
-    description = "Inbound SCP"
-    from_port   = 4243
-    to_port     = 4243
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  ingress {
-    from_port   = 32768
-    to_port     = 60999
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-  egress {
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-  egress {
-    from_port   = 32768
-    to_port     = 60999
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-
-  tags = {
-    Name = "docker_security_group"
-  }
-}
-
-resource "aws_instance" "docker" {
-  ami           = "ami-00ec9546402c989de"
-  instance_type = "t2.medium"
-
-  key_name        = aws_key_pair.generated_key.key_name
-  security_groups = [aws_security_group.docker_security_group.name]
-
-  root_block_device {
-    volume_size = 15
-  }
-  tags = {
-    Name = "docker_ec2"
-  }
-
-  user_data = <<EOF
-#!/bin/bash
-echo "-------------------------START SETUP---------------------------"
-sudo yum update -y 
-sudo amazon-linux-extras install -y docker
-sudo service docker start
-    sudo groupadd docker
-sudo usermod -a -G docker ec2-user
-newgrp docker
-
-    echo "-------------------------END SETUP---------------------------"
-
-EOF
-
-}
 resource "aws_instance" "jenkins" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t2.medium"
@@ -184,6 +111,21 @@ echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
 sudo apt-get -y update
 sudo apt-get -y install jenkins
 sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+    sudo apt -y install apt-transport-https ca-certificates curl software-properties-common
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+    
+    apt-cache policy docker-ce
+
+    sudo apt -y install docker-ce
+    sudo usermod -aG docker ${USER}
+    sudo usermod -a -G docker jenkins
+    sudo service jenkins restart
+    sudo systemctl daemon-reload
+    sudo service docker stop
+    sudo service docker start
+
 echo "-------------------------END SETUP---------------------------"
 
 EOF
