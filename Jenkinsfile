@@ -13,7 +13,6 @@ pipeline {
                 steps {
                 echo 'Installing dependencies'
                 sh 'go version'
-                sh 'go get -u golang.org/x/lint/golint'
                 }
         }
         stage('Tests') {
@@ -22,8 +21,6 @@ pipeline {
                     sh 'cd src'
                     echo 'Running vetting'
                     sh 'go vet .'
-                    echo 'Running linting'
-                    sh 'golint .'
                     echo 'Running test'
                     sh 'cd test && go test -v'
                     }
