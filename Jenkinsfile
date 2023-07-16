@@ -32,6 +32,8 @@ pipeline {
                 dir('src') {
                     echo 'Running smoke test'
                     sh 'go build .'
+                    sh 'go run .'
+
                 }
             }
         }
