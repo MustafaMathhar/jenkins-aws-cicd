@@ -1,3 +1,4 @@
+def dockerImage
 pipeline {
     agent { label 'default' }
     tools {
@@ -33,7 +34,7 @@ pipeline {
                     echo 'Running smoke test'
                     sh 'go build .'
                     script {
-                        dockerImage = docker.build('monishavasu/my-react-app:latest')
+                        dockerImage = docker.build('fangg23/hello_docker_jenkins:latest')
                     }
                 }
             }
