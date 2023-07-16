@@ -28,17 +28,18 @@ pipeline {
             }
         }
         stage('Smoke Test') {
-            environment{
-                    PORT=6969
-                }
+            
             steps {
                 dir('src') {
                     echo 'Running smoke test'
                     sh 'go build .'
-                    sh 'go run .'
-
                 }
             }
         }
+        stage('Build dockerfile'){
+                steps{
+                        sh 'docker build -t mustafamathhar/hello_jenkins_docker:latest .'
+                    }
+            }
     }
 }
