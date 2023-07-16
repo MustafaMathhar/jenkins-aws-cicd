@@ -28,24 +28,23 @@ pipeline {
             }
         }
         stage('Smoke Test') {
-
             steps {
                 dir('src') {
                     echo 'Running smoke test'
                     sh 'go build .'
-                    dockerImage = docker.build("monishavasu/my-react-app:latest")
-
+                    script {
+                        dockerImage = docker.build('monishavasu/my-react-app:latest')
+                    }
                 }
             }
         }
-        stage('Build dockerfile'){
-                steps{
-
-                       sh 'docker build -t fangg23/hello_docker_jenkins:latest .'
-                       withDockerRegistry([ credentialsId: "DOCKERHUB_JENKINS", url: "" ]) {
-                           dockerImage.push()
-                       }
+        stage('Build dockerfile') {
+                steps {
+                sh 'docker build -t fangg23/hello_docker_jenkins:latest .'
+                withDockerRegistry([ credentialsId: 'DOCKERHUB_JENKINS', url: '' ]) {
+                    dockerImage.push()
+                }
                 }
         }
     }
-    }
+}
