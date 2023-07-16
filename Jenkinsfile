@@ -5,6 +5,7 @@ pipeline {
             steps {
                 dir('src') {
                     sh 'pwd'
+                    sh 'ls -a'
                 }
             }
         }
