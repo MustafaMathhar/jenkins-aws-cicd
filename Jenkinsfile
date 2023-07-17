@@ -18,14 +18,14 @@ pipeline {
         }
         stage('Tests') {
             steps {
-                    withEnv(["PATH+GO=${GOPATH}/bin"]) {
-                        dir('src') {
-                            echo 'Running vetting'
-                                sh 'go vet .'
-                                echo 'Running test'
-                                sh 'go test -v'
-                        }
+                withEnv(["PATH+GO=${GOPATH}/bin"]) {
+                    dir('src') {
+                        echo 'Running vetting'
+                        sh 'go vet .'
+                        echo 'Running test'
+                        sh 'go test -v'
                     }
+                }
             }
         }
         stage('Smoke Test') {

@@ -119,7 +119,53 @@ sudo cat /var/lib/jenkins/secrets/initialAdminPassword
     apt-cache policy docker-ce
 
     sudo apt -y install docker-ce
-    sudo usermod -aG docker ${USER}
+    sudo usermod -aG docker $${USER}
+    sudo usermod -a -G docker jenkins
+    sudo service jenkins restart
+    sudo systemctl daemon-reload
+    sudo service docker stop
+    sudo service docker start
+
+echo "-------------------------END SETUP---------------------------"
+
+EOF
+}
+resource "aws_instance" "cart" {
+  ami           = data.aws_ami.ubuntu.id
+  instance_type = "t2.medium"
+
+  key_name        = aws_key_pair.generated_key.key_name
+  security_groups = [aws_security_group.jenkins_security_group.name]
+  root_block_device {
+    volume_size = 20
+  }
+  tags = {
+    Name = "cart_ec2"
+  }
+
+  user_data = <<EOF
+#!/bin/bash
+
+echo "-------------------------START SETUP---------------------------"
+sudo apt-get -y update
+sudo apt-get -y install openjdk-11-jre
+curl -fsSL https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key | sudo tee \
+  /usr/share/keyrings/jenkins-keyring.asc > /dev/null
+echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+  https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+  /etc/apt/sources.list.d/jenkins.list > /dev/null
+sudo apt-get -y update
+sudo apt-get -y install jenkins
+sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+    sudo apt -y install apt-transport-https ca-certificates curl software-properties-common
+    curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
+    
+    sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu focal stable"
+    
+    apt-cache policy docker-ce
+
+    sudo apt -y install docker-ce
+    sudo usermod -aG docker $${USER}
     sudo usermod -a -G docker jenkins
     sudo service jenkins restart
     sudo systemctl daemon-reload
